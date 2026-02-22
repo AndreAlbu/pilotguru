@@ -275,7 +275,7 @@ public class SensorDataSaver extends CameraCaptureSession.CaptureCallback implem
   }
 
   // LocationListener - GPS.
-  public void onLocationChanged(Location location) {
+  /*public void onLocationChanged(Location location) {
     try {
       locationLock.lock();
       if (isRecording) {
@@ -291,6 +291,40 @@ public class SensorDataSaver extends CameraCaptureSession.CaptureCallback implem
         locationsWriter.name("bearing_degrees").value(location.getBearing());
         locationsWriter.name(TIME_USEC)
             .value(TimeUnit.NANOSECONDS.toMicros(location.getElapsedRealtimeNanos()));
+        locationsWriter.endObject();
+      }
+    } catch (IOException e) {
+      Errors.dieOnException(parentActivity, e, "Error writing accelerations JSON.");
+    } finally {
+      locationLock.unlock();
+    }
+  }
+
+  */
+
+  @Override
+  public void onLocationChanged(Location location) {
+
+    Log.d("GPS_DEBUG", "onLocationChanged(dataSaver) isRecording=" + isRecording
+            + " lat=" + location.getLatitude()
+            + " lon=" + location.getLongitude());
+
+    try {
+      locationLock.lock();
+      if (isRecording) {
+        locationsWriter.beginObject();
+        locationsWriter.name("lat").value(location.getLatitude());
+        locationsWriter.name("lon").value(location.getLongitude());
+        locationsWriter.name("altitude_m").value(location.getAltitude());
+        locationsWriter.name("accuracy_m").value(location.getAccuracy());
+        if (Build.VERSION.SDK_INT >= 26) {
+          locationsWriter.name("vertical_accuracy_m")
+                  .value(location.getVerticalAccuracyMeters());
+        }
+        locationsWriter.name("speed_m_s").value(location.getSpeed());
+        locationsWriter.name("bearing_degrees").value(location.getBearing());
+        locationsWriter.name(TIME_USEC)
+                .value(TimeUnit.NANOSECONDS.toMicros(location.getElapsedRealtimeNanos()));
         locationsWriter.endObject();
       }
     } catch (IOException e) {

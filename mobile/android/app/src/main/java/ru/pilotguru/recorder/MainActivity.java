@@ -53,6 +53,10 @@ import ru.pilotguru.recorder.elm327.ELM327Receiver;
 import ru.pilotguru.recorder.elm327.ELM327Settings;
 import ru.pilotguru.recorder.elm327.ELM327StatusTextUpdater;
 
+import java.util.List;
+
+
+
 import static ru.pilotguru.recorder.SettingsConstants.PREF_LOG_PRESSURES;
 
 public class MainActivity extends Activity {
@@ -491,10 +495,42 @@ public class MainActivity extends Activity {
     return (LocationManager) getSystemService(LOCATION_SERVICE);
   }
 
-  private void subscribeToLocationUpdates(LocationListener listener, long minTimeMsec) {
+  /*private void subscribeToLocationUpdates(LocationListener listener, long minTimeMsec) {
     final LocationManager locationManager = getLocationManager();
     final String bestProvider = locationManager.getBestProvider(new Criteria(), false);
+    Log.d("GPS_DEBUG", "Chamando requestLocationUpdates com provider: " + bestProvider);
     locationManager.requestLocationUpdates(bestProvider, minTimeMsec, 0.01f, listener);
+  }
+*/
+
+  private void subscribeToLocationUpdates(LocationListener listener, long minTimeMsec) {
+    final LocationManager locationManager = getLocationManager();
+
+    // 1) Quais providers existem e estão habilitados?
+    List<String> enabledProviders = locationManager.getProviders(true);
+    List<String> allProviders = locationManager.getAllProviders();
+    Log.d("GPS_DEBUG", "Providers habilitados: " + enabledProviders);
+    Log.d("GPS_DEBUG", "Todos providers: " + allProviders);
+
+    // 2) Força um provider válido (evita "fused" aqui)
+    String provider;
+    if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+      provider = LocationManager.GPS_PROVIDER;
+    } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+      provider = LocationManager.NETWORK_PROVIDER;
+    } else {
+      provider = LocationManager.PASSIVE_PROVIDER; // último recurso
+    }
+
+    Log.d("GPS_DEBUG", "Chamando requestLocationUpdates com provider: " + provider);
+
+    try {
+      locationManager.requestLocationUpdates(provider, minTimeMsec, 0.01f, listener);
+    } catch (SecurityException se) {
+      Log.e("GPS_DEBUG", "Sem permissão de localização (SecurityException)", se);
+    } catch (Exception e) {
+      Log.e("GPS_DEBUG", "Erro ao chamar requestLocationUpdates", e);
+    }
   }
 
   private void subscribeToImuUpdates(SensorEventListener listener, int delay) {

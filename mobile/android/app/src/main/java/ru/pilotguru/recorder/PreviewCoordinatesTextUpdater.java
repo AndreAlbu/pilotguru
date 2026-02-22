@@ -4,6 +4,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.util.Log;
+
 
 import java.util.Locale;
 
@@ -15,6 +17,7 @@ public class PreviewCoordinatesTextUpdater implements LocationListener {
   }
 
   public void onLocationChanged(Location location) {
+    Log.d("GPS_DEBUG", "Lat: " + location.getLatitude() + " Lon: " + location.getLongitude());
     final String coordinatesText = String.format(Locale.US,
         "Coordinates:  lat %.03f  lon %.03f  alt: %.01f accuracy %.01f", location.getLatitude(),
         location.getLongitude(), location.getAltitude(), location.getAccuracy());
