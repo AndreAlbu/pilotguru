@@ -54,8 +54,12 @@ public class SensorAndVideoRecorder {
     videoRecorder.setVideoEncoder(profile.videoCodec);
     videoRecorder.setOutputFile(videoFile.getAbsolutePath());
     final Integer sensorOrientation = cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-    if (sensorOrientation != null) {
+    /*if (sensorOrientation != null) {
       videoRecorder.setOrientationHint(sensorOrientation - displayRotationEnum * 90);
+    }*/
+    if (sensorOrientation != null) {
+      int hint = (sensorOrientation - displayRotationEnum * 90 + 360) % 360;
+      videoRecorder.setOrientationHint(hint);
     }
     videoRecorder.prepare();
     videoRecorder.start();

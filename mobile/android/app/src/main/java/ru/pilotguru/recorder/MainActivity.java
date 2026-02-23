@@ -223,6 +223,9 @@ public class MainActivity extends Activity {
       throw new AssertionError("Take picture button not found in resources.");
     }
 
+    //novo
+    //takePictureButton.setEnabled(false);
+
     settingsButton = (ImageButton) findViewById(R.id.btn_settings);
     if (settingsButton == null) {
       throw new AssertionError("Settings button not found in resources.");

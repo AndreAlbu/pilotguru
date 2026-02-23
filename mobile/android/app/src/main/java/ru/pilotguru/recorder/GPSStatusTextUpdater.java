@@ -11,7 +11,7 @@ public class GPSStatusTextUpdater extends GnssStatus.Callback {
         this.textViewGpsStatus = textViewGpsStatus;
     }
 
-    public void onSatelliteStatusChanged (GnssStatus status) {
+    /*public void onSatelliteStatusChanged (GnssStatus status) {
         int satsInFix = 0;
         for (int i=0; i<status.getSatelliteCount(); ++i) {
             if (status.usedInFix(i)) {
@@ -19,6 +19,26 @@ public class GPSStatusTextUpdater extends GnssStatus.Callback {
             }
         }
         textViewGpsStatus.setText("GPS status: " + satsInFix + " sats active");
+    }
+     */
+
+    @Override
+    public void onSatelliteStatusChanged(GnssStatus status) {
+        int satsInFix = 0;
+
+        for (int i = 0; i < status.getSatelliteCount(); ++i) {
+            if (status.usedInFix(i)) {
+                satsInFix++;
+            }
+        }
+
+        final int MIN_SATS = 4;
+
+        if (satsInFix >= MIN_SATS) {
+            textViewGpsStatus.setText("Sat identificado — pode gravar (" + satsInFix + ")");
+        } else {
+            textViewGpsStatus.setText("Aguardando GPS (" + satsInFix + ")");
+        }
     }
 
 }
