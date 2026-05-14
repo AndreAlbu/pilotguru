@@ -35,9 +35,9 @@ public class GPSStatusTextUpdater extends GnssStatus.Callback {
         final int MIN_SATS = 4;
 
         if (satsInFix >= MIN_SATS) {
-            textViewGpsStatus.setText("Sat identificado — pode gravar (" + satsInFix + ")");
+            textViewGpsStatus.setText("GPS — on (" + satsInFix + ")");
         } else {
-            textViewGpsStatus.setText("Aguardando GPS (" + satsInFix + ")");
+            textViewGpsStatus.setText("GPS - off (" + satsInFix + ")");
         }
     }
 
