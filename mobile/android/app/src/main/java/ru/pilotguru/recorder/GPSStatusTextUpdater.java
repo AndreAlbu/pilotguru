@@ -35,7 +35,7 @@ public class GPSStatusTextUpdater extends GnssStatus.Callback {
         final int MIN_SATS = 4;
 
         if (satsInFix >= MIN_SATS) {
-            textViewGpsStatus.setText("GPS — on (" + satsInFix + ")");
+            textViewGpsStatus.setText("GPS - on (" + satsInFix + ")");
         } else {
             textViewGpsStatus.setText("GPS - off (" + satsInFix + ")");
         }
