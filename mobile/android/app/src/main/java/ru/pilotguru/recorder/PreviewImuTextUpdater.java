@@ -22,7 +22,9 @@ public class PreviewImuTextUpdater extends TimeSpacedUpdater implements SensorEv
   public void doUpdate(long currentTimeNanos) {
     final String imuText = String.format(
         Locale.US,
-        "IMU: rotation x %.01f  y %.01f  z %.01f acceleration x %.01f  y %.01f  z %.01f",
+        "IMU: " + "\n" +
+                "  giros x %.01f  y %.01f  z %.01f " + "\n" +
+                "  accel x %.01f  y %.01f  z %.01f",
         rotation[0],
         rotation[1],
         rotation[2],

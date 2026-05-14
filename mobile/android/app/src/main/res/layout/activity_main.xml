@@ -27,7 +27,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="BAT: "
-        android:textColor="#00ff00" />
+        android:textColor="#00ff00"
+        android:visibility="invisible" />
 
     <TextView
         android:id="@+id/textview_coords"
@@ -77,7 +78,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/textview_camera"
         android:text="OBD"
-        android:textColor="#ff0000" />
+        android:textColor="#ff0000"
+        android:visibility="invisible" />
 
     <ImageButton
         android:id="@+id/btn_takepicture"

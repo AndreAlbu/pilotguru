@@ -240,6 +240,7 @@ public class MainActivity extends Activity {
     textViewIMU = (TextView) findViewById(R.id.textview_imu);
     imuTextUpdater = new PreviewImuTextUpdater(TimeUnit.MILLISECONDS.toNanos(500), textViewIMU);
 
+
     textViewElm327 = (TextView) findViewById(R.id.textview_elm327);
     elm327StatusTextUpdater = new ELM327StatusTextUpdater(TimeUnit.MILLISECONDS.toNanos(500),
         TimeUnit.SECONDS.toNanos(1),
