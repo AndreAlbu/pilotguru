@@ -18,6 +18,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
+
 public class SensorAndVideoRecorder {
   private final File storageDir;
   private final MediaRecorder videoRecorder = new MediaRecorder();
@@ -39,8 +41,10 @@ public class SensorAndVideoRecorder {
 
     final long sequenceStartMillis = System.currentTimeMillis();
     @SuppressLint("SimpleDateFormat") final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
-    final File recordingDir =
+    /*final File recordingDir =
         new File(storageDir, dateFormat.format(new Date(sequenceStartMillis)));
+*/
+    recordingDir = new File(storageDir, dateFormat.format(new Date(sequenceStartMillis)));
     recordingDir.mkdirs();
     sensorRecorder.start(recordingDir, textViewFps, textViewCamera, cameraCharacteristics);
 
@@ -91,4 +95,37 @@ public class SensorAndVideoRecorder {
   public SensorDataSaver getSensorDataSaver() {
     return sensorRecorder;
   }
+
+  private File recordingDir;
+
+  /* novo andre*/
+  public boolean renameLastRecording(@NonNull Context context, @NonNull String newName) {
+    if (recordingDir == null || !recordingDir.exists()) {
+      return false;
+    }
+
+    String safeName = newName.trim()
+            .replaceAll("[^a-zA-Z0-9_\\-]", "_");
+
+    if (safeName.isEmpty()) {
+      return false;
+    }
+
+    File newDir = new File(storageDir, safeName);
+
+    if (newDir.exists()) {
+      Toast.makeText(context, "Já existe uma pasta com esse nome.", Toast.LENGTH_LONG).show();
+      return false;
+    }
+
+    boolean renamed = recordingDir.renameTo(newDir);
+
+    if (renamed) {
+      recordingDir = newDir;
+    }
+
+    return renamed;
+  }
 }
+
+

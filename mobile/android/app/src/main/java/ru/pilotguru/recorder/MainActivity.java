@@ -53,6 +53,14 @@ import ru.pilotguru.recorder.elm327.ELM327Receiver;
 import ru.pilotguru.recorder.elm327.ELM327Settings;
 import ru.pilotguru.recorder.elm327.ELM327StatusTextUpdater;
 
+import android.app.AlertDialog;
+import android.text.InputType;
+import android.widget.EditText;
+
+import android.content.pm.ActivityInfo;
+
+import android.content.DialogInterface;
+
 import java.util.List;
 
 
@@ -76,11 +84,13 @@ public class MainActivity extends Activity {
   private PreviewImuTextUpdater imuTextUpdater;
 
   // UI - buttons.
-  private ImageButton takePictureButton, settingsButton;
+  private ImageButton takePictureButton, settingsButton, rotateButton;
 
   // Status bits for camera connections.
   private boolean isPreviewTextureAvailable = false;
   private boolean isCameraOpened = false;
+
+  private boolean isLandscapeMode = false;
 
   private ELM327Receiver elm327Receiver;
   private final LastPacketTimestamp elm327LastPacketTimestamp = new LastPacketTimestamp();
@@ -144,6 +154,7 @@ public class MainActivity extends Activity {
     return captureSettings.getSupportedQualityProfile();
   }
 
+  /*
   private void maybeStopRecording() {
     if (recorder.isRecording()) {
       try {
@@ -161,6 +172,55 @@ public class MainActivity extends Activity {
       }
     }
   }
+   */
+  private void maybeStopRecording() {
+    if (recorder.isRecording()) {
+      try {
+        // Stop recording the video and sensors.
+        cameraCaptureSession.stopRepeating();
+        cameraCaptureSession.close();
+        recorder.stop(this);
+
+        // Update buttons status.
+        takePictureButton.setImageResource(R.mipmap.icon_rec);
+        settingsButton.setEnabled(true);
+
+        rotateButton.setEnabled(true);
+
+        showRenameRecordingDialog();
+
+      } catch (CameraAccessException e) {
+        Errors.dieOnException(MainActivity.this, e, "Camera access exception, exiting.");
+      }
+    }
+  }
+
+  private void showRenameRecordingDialog() {
+    final EditText input = new EditText(this);
+    input.setHint("Ex: supermercado_corredor_01");
+    input.setInputType(InputType.TYPE_CLASS_TEXT);
+
+    new AlertDialog.Builder(this)
+            .setTitle("Nome da gravação")
+            .setMessage("Digite um nome para salvar esta gravação.")
+            .setView(input)
+            .setPositiveButton("Salvar", new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                String name = input.getText().toString();
+
+                boolean renamed = recorder.renameLastRecording(MainActivity.this, name);
+
+                if (renamed) {
+                  Toast.makeText(MainActivity.this, "Gravação salva com sucesso.", Toast.LENGTH_LONG).show();
+                } else {
+                  Toast.makeText(MainActivity.this, "Não foi possível renomear a gravação.", Toast.LENGTH_LONG).show();
+                }
+              }
+            })
+            .setNegativeButton("Cancelar", null)
+            .show();
+  }
 
   private final View.OnClickListener recordButtonListener = new View.OnClickListener() {
     @Override
@@ -174,6 +234,8 @@ public class MainActivity extends Activity {
         Toast.makeText(getApplicationContext(), "Started", Toast.LENGTH_LONG).show();
         takePictureButton.setImageResource(R.mipmap.icon_rec_on);
         settingsButton.setEnabled(false);
+
+        rotateButton.setEnabled(false);
 
         try {
           // Stop preview-only capture session, replace it with video recording session.
@@ -230,6 +292,14 @@ public class MainActivity extends Activity {
     if (settingsButton == null) {
       throw new AssertionError("Settings button not found in resources.");
     }
+
+    rotateButton = (ImageButton) findViewById(R.id.btn_rotate);
+
+    if (rotateButton == null) {
+      throw new AssertionError("Rotate button not found in resources.");
+    }
+
+    rotateButton.setOnClickListener(rotateButtonListener);
 
     textViewCoords = (TextView) findViewById(R.id.textview_coords);
     coordinatesTextUpdater = new PreviewCoordinatesTextUpdater(textViewCoords);
@@ -537,7 +607,7 @@ public class MainActivity extends Activity {
     }
   }
 
-  private void subscribeToImuUpdates(SensorEventListener listener, int delay) {
+  /*private void subscribeToImuUpdates(SensorEventListener listener, int delay) {
     final SensorManager sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
     if (sm == null) {
       return;
@@ -549,6 +619,30 @@ public class MainActivity extends Activity {
     }
     sm.registerListener(listener, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), delay);
   }
+   */
+
+  private void subscribeToImuUpdates(SensorEventListener listener, int delay) {
+    final SensorManager sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+    if (sm == null) {
+      return;
+    }
+
+    final Sensor gyro = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+    if (gyro != null) {
+      sm.registerListener(listener, gyro, delay);
+    }
+
+    final Sensor magnetometer = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+    if (magnetometer != null) {
+      sm.registerListener(listener, magnetometer, delay);
+    }
+
+    final Sensor accelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+    if (accelerometer != null) {
+      sm.registerListener(listener, accelerometer, delay);
+    }
+  }
+
 
   private void subscribeToPressureUpdates(SensorEventListener listener, int delay) {
     final SensorManager sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -556,4 +650,22 @@ public class MainActivity extends Activity {
       sm.registerListener(listener, sm.getDefaultSensor(Sensor.TYPE_PRESSURE), delay);
     }
   }
+
+  private final View.OnClickListener rotateButtonListener = new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+      if (recorder.isRecording()) {
+        Toast.makeText(MainActivity.this, "Pare a gravação antes de girar a câmera.", Toast.LENGTH_SHORT).show();
+        return;
+      }
+
+      if (isLandscapeMode) {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        isLandscapeMode = false;
+      } else {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        isLandscapeMode = true;
+      }
+    }
+  };
 }

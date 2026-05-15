@@ -20,6 +20,7 @@
             android:id="@+id/video_preview_grid"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
     </FrameLayout>
 
     <TextView
@@ -100,5 +101,17 @@
         android:layout_toLeftOf="@id/btn_takepicture"
         android:src="@mipmap/icon_settings"
         android:text="Settings" />
+
+    <ImageButton
+        android:id="@+id/btn_rotate"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_alignBottom="@id/btn_settings"
+        android:layout_toLeftOf="@id/btn_settings"
+        android:layout_marginEnd="12dp"
+        android:background="@android:drawable/btn_default"
+        android:padding="12dp"
+        android:contentDescription="Girar câmera"
+        android:src="@android:drawable/ic_menu_rotate" />
 
 </RelativeLayout>

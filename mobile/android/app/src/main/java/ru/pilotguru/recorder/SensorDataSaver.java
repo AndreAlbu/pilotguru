@@ -46,11 +46,13 @@ public class SensorDataSaver extends CameraCaptureSession.CaptureCallback implem
   public static final String FRAMES = "frames";
   public static final String CAN_FRAMES = "can_frames";
   public static final String PRESSURES = "pressures";
+  public static final String MAGNETIC_FIELDS = "magnetic_fields";
 
   public static final String TIME_USEC = "time_usec";
 
   private JsonWriter rotationsWriter = null, accelerationsWriter = null, locationsWriter = null,
-      gpsStatusWriter = null, framesWriter = null, elm327Writer = null, pressuresWriter = null;
+          gpsStatusWriter = null, framesWriter = null, elm327Writer = null, pressuresWriter = null,
+          magneticFieldsWriter = null;
   private List<String> jsonFiles = new LinkedList<>();
 
   private boolean isRecording = false;
@@ -61,6 +63,7 @@ public class SensorDataSaver extends CameraCaptureSession.CaptureCallback implem
   private final Lock gpsStatusLock = recordingStatusLock.readLock();
   private final Lock frameCaptureLock = recordingStatusLock.readLock();
   private final Lock pressuresLock = recordingStatusLock.readLock();
+  private final Lock magneticFieldsLock = recordingStatusLock.readLock();
   private final Lock elm327Lock = recordingStatusLock.readLock();
   private final Lock recordingStatusChangeLock = recordingStatusLock.writeLock();
 
@@ -164,6 +167,7 @@ public class SensorDataSaver extends CameraCaptureSession.CaptureCallback implem
       gpsStatusWriter = initJsonListWriter(recordingDir, GPS_STATUS);
       framesWriter = initJsonListWriter(recordingDir, FRAMES);
       pressuresWriter = initJsonListWriter(recordingDir, PRESSURES);
+      magneticFieldsWriter = initJsonListWriter(recordingDir, MAGNETIC_FIELDS);
       elm327Writer = initJsonListWriter(recordingDir, CAN_FRAMES);
     } finally {
       recordingStatusChangeLock.unlock();
@@ -214,6 +218,7 @@ public class SensorDataSaver extends CameraCaptureSession.CaptureCallback implem
     finishJsonListWriter(locationsWriter, LOCATIONS);
     finishJsonListWriter(gpsStatusWriter, GPS_STATUS);
     finishJsonListWriter(pressuresWriter, PRESSURES);
+    finishJsonListWriter(magneticFieldsWriter, MAGNETIC_FIELDS);
     finishJsonListWriter(framesWriter, FRAMES);
     finishJsonListWriter(elm327Writer, CAN_FRAMES);
     MediaScannerConnection.scanFile(context, jsonFiles.toArray(new String[0]), null, null);
@@ -265,6 +270,10 @@ public class SensorDataSaver extends CameraCaptureSession.CaptureCallback implem
       case Sensor.TYPE_PRESSURE:
         writeNamedSensorValues(
             pressuresLock, event, valuesPressureHpa, pressuresWriter, PRESSURES);
+        break;
+      case Sensor.TYPE_MAGNETIC_FIELD:
+        writeNamedSensorValues(
+                magneticFieldsLock, event, valuesXyz, magneticFieldsWriter, MAGNETIC_FIELDS);
         break;
       default:
         break;
