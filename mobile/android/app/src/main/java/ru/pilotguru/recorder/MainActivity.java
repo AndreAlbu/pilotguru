@@ -241,12 +241,19 @@ public class MainActivity extends Activity {
           // Stop preview-only capture session, replace it with video recording session.
           cameraCaptureSession.stopRepeating();
           cameraCaptureSession.close();
-          final int displayRotationEnum = getWindowManager().getDefaultDisplay().getRotation();
+          /*final int displayRotationEnum = getWindowManager().getDefaultDisplay().getRotation();
           final Surface videoRecorderSurface = recorder.start(effectiveCamcorderProfile(),
               textViewFps,
               textViewCamera,
               displayRotationEnum,
-              getCameraCharacteristics());
+              getCameraCharacteristics());*/
+          final int orientationHintDegrees = isLandscapeMode ? 0 : 90;
+
+          final Surface videoRecorderSurface = recorder.start(effectiveCamcorderProfile(),
+                  textViewFps,
+                  textViewCamera,
+                  orientationHintDegrees,
+                  getCameraCharacteristics());
           createCameraSession(cameraDevice,
                   Collections.singletonList(videoRecorderSurface),
               recorder.getSensorDataSaver());

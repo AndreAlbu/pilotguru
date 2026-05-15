@@ -32,7 +32,7 @@ public class SensorAndVideoRecorder {
   }
 
   public Surface start(@NonNull CamcorderProfile profile, TextView textViewFps,
-                       TextView textViewCamera, int displayRotationEnum /* Display.getRotation() */,
+                       TextView textViewCamera, int orientationHintDegrees,
                        CameraCharacteristics cameraCharacteristics) throws IOException {
     if (sensorRecorder.isRecording()) {
       throw new AssertionError(
@@ -57,14 +57,18 @@ public class SensorAndVideoRecorder {
     videoRecorder.setVideoEncodingBitRate(profile.videoBitRate);
     videoRecorder.setVideoEncoder(profile.videoCodec);
     videoRecorder.setOutputFile(videoFile.getAbsolutePath());
-    final Integer sensorOrientation = cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-    /*if (sensorOrientation != null) {
+
+
+    /*final Integer sensorOrientation = cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+    if (sensorOrientation != null) {
       videoRecorder.setOrientationHint(sensorOrientation - displayRotationEnum * 90);
-    }*/
+    }
     if (sensorOrientation != null) {
       int hint = (sensorOrientation - displayRotationEnum * 90 + 360) % 360;
       videoRecorder.setOrientationHint(hint);
-    }
+    }*/
+
+    videoRecorder.setOrientationHint(orientationHintDegrees);
     videoRecorder.prepare();
     videoRecorder.start();
 
